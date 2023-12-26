@@ -1,7 +1,12 @@
 <template>
   <div class="ma-10">
     <template v-for="(line, lineIndex) in indexedSudoku" :key="lineIndex">
-      <v-divider v-if="lineIndex % 3 == 0" thickness="3" class="border-opacity-100" color="black" />
+      <v-divider
+        v-if="lineIndex % 3 == 0 || lineIndex == 9"
+        thickness="3"
+        class="border-opacity-100"
+        color="black"
+      />
       <div class="ma-0 d-flex flex-row">
         <template v-for="(item, columnIndex) in line" :key="item.item">
           <v-divider

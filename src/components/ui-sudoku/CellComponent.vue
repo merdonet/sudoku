@@ -1,8 +1,8 @@
 <template>
-  <div class="d-flex flex-row bg-surface-variant">
-    <v-card v-click-outside="onClickOutside">
+  <div class="d-flex flex-row">
+    <v-card v-click-outside="onClickOutside" variant="flat">
       <v-btn
-        class="cell pa-0 ma-0"
+        class="cell pa-0 ma-0 elevation-n0"
         flat
         variant="outlined"
         :active="selected"
@@ -40,7 +40,7 @@ const onClickOutside = () => {
 
 <style scope>
 .cell {
-  min-width: 40px;
+  /* min-width: 30px; */
   min-height: 50px;
 }
 
