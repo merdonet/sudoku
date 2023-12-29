@@ -1,4 +1,4 @@
-import type { Sudoku, CheckSet } from './types'
+import type { Sudoku, CheckSet, Cell } from './types'
 
 // const sudokuData: Sudoku = [
 //   [2, 7, 1, 4, 6, 5, 9, 3, 8],
@@ -62,4 +62,8 @@ const makeColumnArray = (puzzle: Sudoku) => {
   return cols
 }
 
-export { checkPuzzleLine, getAllBlocks, makeColumnArray }
+const findCell = (puzzle: Cell[][], cell: Cell) => {
+  return puzzle[cell.columnIndex][cell.columnIndex]
+}
+
+export { checkPuzzleLine, getAllBlocks, makeColumnArray, findCell }

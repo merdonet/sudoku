@@ -1,14 +1,16 @@
-type Sudoku = number[][]
+type Sudoku = number[][];
 
 type CheckSet = {
-  number: number
-  index: number
-}
+  number: number;
+  index: number;
+};
 
-type IndexedSudoku = {
-  item: number
-  lineIndex: number
-  columnIndex: number
-}
+type Cell = {
+  columnIndex: number;
+  lineIndex: number;
+  lock: Boolean;
+  userValue: number;
+  value: number;
+};
 
-export type { Sudoku, CheckSet, IndexedSudoku }
+export type { Sudoku, CheckSet, Cell };
