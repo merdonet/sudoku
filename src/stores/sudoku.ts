@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, reactive, type ComputedRef } from 'vue';
 import { defineStore } from 'pinia';
 import type { Sudoku, Cell } from '../utils/types';
 
@@ -15,28 +15,55 @@ export const usePuzzleStore = defineStore('puzzle', () => {
     [3, 6, 5, 9, 4, 1, 8, 7, 2]
   ]);
 
-  const indexedSudoku = computed(() => {
-    return puzzle.value.map((line: number[], columnIndex: number) => {
+  const makeIndexed = () => {
+    return puzzleData.value.map((line: number[], columnIndex: number) => {
       return line.map((item: number, index: number) => {
         return {
-          value: item,
+          val: item,
           lineIndex: index,
           columnIndex,
-          lock: true,
+          lock: false,
           userValue: 0
         };
       });
     });
-  });
+  };
+  const indexedSudoku = ref();
+  indexedSudoku.value = makeIndexed();
 
   const selectedCell = ref<Cell>();
 
-  const updateSelectedCell = (val: Cell) => {
+  const updateSelectedCellStatus = (val: Cell) => {
     selectedCell.value = val;
   };
 
-  const getSelectedCell = computed(() => selectedCell);
-  const puzzle = computed(() => puzzleData.value);
+  const resetPuzzle = () => {
+    indexedSudoku.value = makeIndexed();
+  };
 
-  return { puzzle, indexedSudoku, updateSelectedCell, getSelectedCell };
+  const updateSelectedCell = (value: number) => {
+    if (!selectedCell.value) return;
+    const { columnIndex, lineIndex } = selectedCell.value;
+
+    indexedSudoku.value[columnIndex][lineIndex].userValue = value;
+  };
+
+  const prepareDifficulty = (cell: Cell) => {
+    const { columnIndex, lineIndex } = cell;
+
+    indexedSudoku.value[columnIndex][lineIndex].lock = true;
+  };
+
+  const getSelectedCell = computed(() => selectedCell);
+  const puzzle = computed(() => puzzleData);
+
+  return {
+    puzzle,
+    indexedSudoku,
+    updateSelectedCellStatus,
+    getSelectedCell,
+    updateSelectedCell,
+    prepareDifficulty,
+    resetPuzzle
+  };
 });

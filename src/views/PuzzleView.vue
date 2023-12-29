@@ -1,5 +1,17 @@
 <template>
   <div class="d-flex justify-center flex-column ma-10 pa-0 puzzle-layout">
+    <div>
+      <v-select
+        :items="difficultyLevels"
+        item-title="label"
+        item-value="value"
+        density="compact"
+        hint="Select difficulty level"
+        persistent-hint
+        @update:model-value="setDificulty"
+      >
+      </v-select>
+    </div>
     <template v-for="(line, lineIndex) in indexedSudoku" :key="lineIndex">
       <v-divider
         v-if="lineIndex % 3 == 0 || lineIndex == 9"
@@ -33,7 +45,7 @@
     <v-divider thickness="3" class="border-opacity-100" color="black" />
   </div>
   <div class="ma-10">
-    <NumberBlock />
+    <NumberBlock @update:cell-value="onUpdateCellValue" />
   </div>
 </template>
 
@@ -43,8 +55,17 @@ import CellComponent from '@/components/ui-sudoku/CellComponent.vue';
 import NumberBlock from '@/components/ui-sudoku/NumberBlock.vue';
 
 import type { Cell } from '@/utils/types';
+import { onMounted } from 'vue';
+import { nextTick } from 'vue';
 
-const { indexedSudoku, updateSelectedCell, getSelectedCell } = usePuzzleStore();
+const {
+  indexedSudoku,
+  updateSelectedCellStatus,
+  getSelectedCell,
+  updateSelectedCell,
+  prepareDifficulty,
+  resetPuzzle
+} = usePuzzleStore();
 
 type CheckSet = {
   number: number;
@@ -52,7 +73,7 @@ type CheckSet = {
 };
 
 const onCellSelect = (val: Cell) => {
-  updateSelectedCell(val);
+  updateSelectedCellStatus(val);
 };
 
 const isSelected = (item: Cell) => {
@@ -61,6 +82,34 @@ const isSelected = (item: Cell) => {
 
   return item.columnIndex == columnIndex && item.lineIndex == lineIndex;
 };
+
+const onUpdateCellValue = async (value: number) => {
+  updateSelectedCell(value);
+};
+
+const difficultyLevels = [
+  { label: 'Easy', value: 5 },
+  { label: 'Hard', value: 4 },
+  { label: 'Hard++', value: 3 }
+];
+
+const setDificulty = async (difficulty: number = 5) => {
+  // resetPuzzle();
+  indexedSudoku.forEach((puzzleLine: Array<Cell>) => {
+    for (let index = 0; index < difficulty; index++) {
+      const ran = Math.floor(Math.random() * puzzleLine.length);
+      console.log('random', ran);
+      prepareDifficulty(puzzleLine[ran]);
+    }
+  });
+};
+
+onMounted(async () => {
+  // makeIndexed();
+  // resetPuzzle();
+
+  console.log(setDificulty(2));
+});
 
 const checkPuzzleLine = (arr: number[]): CheckSet[] => {
   const result: CheckSet[] = [];

@@ -10,7 +10,7 @@ type Cell = {
   lineIndex: number;
   lock: Boolean;
   userValue: number;
-  value: number;
+  val: number;
 };
 
 export type { Sudoku, CheckSet, Cell };

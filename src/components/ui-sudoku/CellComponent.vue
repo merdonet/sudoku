@@ -21,7 +21,7 @@ import { computed } from 'vue';
 const props = defineProps({
   cellData: {
     type: Object,
-    default: () => {}
+    required: true
   },
   selectedCell: {
     type: Boolean
@@ -36,9 +36,10 @@ const onClick = () => {
 };
 
 const cellValue = computed(() => {
-  if (!props.cellData.lock) return '';
+  if (props.cellData.userValue != 0) return props.cellData.userValue;
+  if (props.cellData.lock) return props.cellData.val;
 
-  return props.cellData.value;
+  return '';
 });
 </script>
 
