@@ -1,11 +1,9 @@
 type Sudoku = number[][];
 
-type CheckSet = {
-  number: number;
-  index: number;
-};
+type CheckSet = Cell[];
 
 type Cell = {
+  id: string;
   columnIndex: number;
   lineIndex: number;
   lock: Boolean;
@@ -13,4 +11,6 @@ type Cell = {
   val: number;
 };
 
-export type { Sudoku, CheckSet, Cell };
+type Difficulty = { label: string; value: number };
+
+export type { Sudoku, CheckSet, Cell, Difficulty };

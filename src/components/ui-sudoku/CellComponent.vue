@@ -8,7 +8,7 @@
       :ripple="false"
       size="small"
       @click="onClick"
-      :color="selectedCell ? 'cyan-darken-1' : ''"
+      :color="cellColor"
     >
       <span class="cell-value ma-0 pa-0">{{ cellValue }}</span>
     </v-btn>
@@ -25,6 +25,9 @@ const props = defineProps({
   },
   selectedCell: {
     type: Boolean
+  },
+  error: {
+    type: Boolean
   }
 });
 
@@ -34,6 +37,12 @@ const onClick = () => {
   // TODO: check if locked
   emit('update:selected-item', props.cellData);
 };
+
+const cellColor = computed(() => {
+  if (props.error) return 'red-lighten-1';
+  if (props.selectedCell) return 'cyan-darken-1';
+  return '';
+});
 
 const cellValue = computed(() => {
   if (props.cellData.userValue != 0) return props.cellData.userValue;

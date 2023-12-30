@@ -2,15 +2,18 @@
   <div class="d-flex justify-center flex-column ma-10 pa-0 puzzle-layout">
     <div>
       <v-select
+        v-model="defaultLevel"
         :items="difficultyLevels"
         item-title="label"
         item-value="value"
         density="compact"
         hint="Select difficulty level"
         persistent-hint
-        @update:model-value="setDificulty"
-      >
-      </v-select>
+        return-object
+        variant="plain"
+        class="diff-level mb-4"
+        @update:model-value="onSetDifficulty"
+      />
     </div>
     <template v-for="(line, lineIndex) in indexedSudoku" :key="lineIndex">
       <v-divider
@@ -32,6 +35,7 @@
             :cell-data="item"
             @update:selected-item="onCellSelect"
             :selected-cell="isSelected(item)"
+            :error="isError(item)"
           />
         </template>
         <v-divider
@@ -47,30 +51,26 @@
   <div class="ma-10">
     <NumberBlock @update:cell-value="onUpdateCellValue" />
   </div>
+  {{ getErrorCells }}
 </template>
 
 <script setup lang="ts">
 import { usePuzzleStore } from '@/stores/sudoku';
 import CellComponent from '@/components/ui-sudoku/CellComponent.vue';
 import NumberBlock from '@/components/ui-sudoku/NumberBlock.vue';
-
-import type { Cell } from '@/utils/types';
-import { onMounted } from 'vue';
-import { nextTick } from 'vue';
+import { difficultyLevels } from '@/stores/sudokuData';
+import type { Cell, Difficulty } from '@/utils/types';
+import { ref } from 'vue';
+import { computed } from 'vue';
 
 const {
   indexedSudoku,
   updateSelectedCellStatus,
   getSelectedCell,
   updateSelectedCell,
-  prepareDifficulty,
-  resetPuzzle
+  setDifficulty,
+  getErrorCells
 } = usePuzzleStore();
-
-type CheckSet = {
-  number: number;
-  index: number;
-};
 
 const onCellSelect = (val: Cell) => {
   updateSelectedCellStatus(val);
@@ -87,55 +87,23 @@ const onUpdateCellValue = async (value: number) => {
   updateSelectedCell(value);
 };
 
-const difficultyLevels = [
-  { label: 'Easy', value: 5 },
-  { label: 'Hard', value: 4 },
-  { label: 'Hard++', value: 3 }
-];
-
-const setDificulty = async (difficulty: number = 5) => {
-  // resetPuzzle();
-  indexedSudoku.forEach((puzzleLine: Array<Cell>) => {
-    for (let index = 0; index < difficulty; index++) {
-      const ran = Math.floor(Math.random() * puzzleLine.length);
-      console.log('random', ran);
-      prepareDifficulty(puzzleLine[ran]);
-    }
-  });
+const defaultLevel = ref<Difficulty>({ label: 'Easy', value: 5 });
+const onSetDifficulty = (val: Difficulty) => {
+  setDifficulty(val);
 };
 
-onMounted(async () => {
-  // makeIndexed();
-  // resetPuzzle();
-
-  console.log(setDificulty(2));
-});
-
-const checkPuzzleLine = (arr: number[]): CheckSet[] => {
-  const result: CheckSet[] = [];
-  arr.forEach((item: number, index: number) => {
-    const res = arr.filter((it) => item == it);
-    if (res.length > 1) result.push({ number: res[0], index });
-  });
-  return result;
-};
-
-const makeColumnArray = (puzzle: number[][]) => {
-  const cols = [];
-  for (let index = 0; index <= puzzle[0].length - 1; index++) {
-    const col = [];
-    for (let colIndex = 0; colIndex <= puzzle.length - 1; colIndex++) {
-      const item: number | undefined = puzzle[colIndex][index];
-      col.push(item);
-    }
-    cols.push(col);
-  }
-  return cols;
+const isError = (val: Cell) => {
+  const errorFound = getErrorCells.value.filter((item: string) => item == val.id);
+  if (errorFound.length > 0) return true;
 };
 </script>
 
 <style scoped>
 .puzzle-layout {
   max-width: max-content;
+}
+
+.diff-level {
+  max-width: 200px;
 }
 </style>

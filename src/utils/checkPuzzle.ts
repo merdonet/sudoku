@@ -1,4 +1,4 @@
-import type { Sudoku, CheckSet, Cell } from './types'
+import type { Sudoku, CheckSet, Cell } from './types';
 
 // const sudokuData: Sudoku = [
 //   [2, 7, 1, 4, 6, 5, 9, 3, 8],
@@ -12,58 +12,106 @@ import type { Sudoku, CheckSet, Cell } from './types'
 //   [3, 6, 5, 9, 4, 1, 8, 7, 2]
 // ]
 
-const getAllBlocks = (sudokuData: Sudoku) => {
-  const allBlocks = []
+const getAllBlocks = (sudokuData: Cell[][]) => {
+  const allBlocks = [];
 
   for (let i = 0; i < 9; i += 3) {
     for (let j = 0; j < 9; j += 3) {
-      const blockValues = getBlockValues(sudokuData, i, j)
-      allBlocks.push(blockValues)
+      const blockValues = getBlockValues(sudokuData, i, j);
+      allBlocks.push(blockValues);
     }
   }
 
-  return allBlocks
-}
+  return allBlocks;
+};
 
-const getBlockValues = (sudokuData: Sudoku, startRow: number, startCol: number) => {
-  const blockValues = []
+const getBlockValues = (sudokuData: Cell[][], startRow: number, startCol: number) => {
+  const blockValues = [];
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
-      const rowIndex = startRow + i
-      const colIndex = startCol + j
-      const cellValue = sudokuData[rowIndex][colIndex]
-      blockValues.push(cellValue)
+      const rowIndex = startRow + i;
+      const colIndex = startCol + j;
+      const cellValue = sudokuData[rowIndex][colIndex];
+      blockValues.push(cellValue);
     }
   }
 
-  return blockValues
-}
+  return blockValues;
+};
 
-const checkPuzzleLine = (arr: number[]): CheckSet[] => {
-  const result: CheckSet[] = []
-  arr.forEach((item: number, index: number) => {
-    const res = arr.filter((it) => item == it)
-    if (res.length > 1) result.push({ number: res[0], index })
-  })
-  return result
-}
+const checkPuzzleLine = (arr: Cell[]): Cell[] => {
+  const result: Cell[] = [];
+  arr.forEach((item: Cell) => {
+    const found = arr.filter((it) => item.val == it.val);
+    if (found.length > 1) {
+      found.forEach((res) => {
+        if (!result.find((item) => item.id == res.id)) {
+          result.push(res);
+        }
+      });
+    }
+  });
+  console.log(result);
 
-const makeColumnArray = (puzzle: Sudoku) => {
-  const cols = []
+  return result;
+};
+
+const checkPuzzleLines = (arr: Cell[][]): string[] => {
+  const result: string[] = [];
+  arr.forEach((line: Cell[]) => {
+    line.forEach((item: Cell) => {
+      if (item.userValue != 0) {
+        const found = line.filter(
+          (it) => item.userValue == it.userValue || (item.userValue == it.val && it.lock == true)
+        );
+        if (found.length > 1) {
+          found.forEach((res) => {
+            if (!result.find((item) => item == res.id)) {
+              result.push(res.id);
+            }
+          });
+        }
+      }
+    });
+  });
+
+  return result;
+};
+
+const checkPuzzle = (arr: Cell[][]): Cell[] => {
+  const result: Cell[] = [];
+  arr.forEach((line: Cell[]) => {
+    line.forEach((item: Cell) => {
+      const found = line.filter((it) => item.val == it.val && item.userValue != 0);
+      if (found.length > 1) {
+        found.forEach((res) => {
+          if (!result.find((item) => item.id == res.id)) {
+            result.push(res);
+          }
+        });
+      }
+    });
+  });
+
+  return result;
+};
+
+const makeColumnArray = (puzzle: Cell[][]) => {
+  const cols = [];
   for (let index = 0; index <= puzzle[0].length - 1; index++) {
-    const col = []
+    const col = [];
     for (let colIndex = 0; colIndex <= puzzle.length - 1; colIndex++) {
-      const item: number = puzzle[colIndex][index]
-      col.push(item)
+      const item: Cell = puzzle[colIndex][index];
+      col.push(item);
     }
-    cols.push(col)
+    cols.push(col);
   }
-  return cols
-}
+  return cols;
+};
 
 const findCell = (puzzle: Cell[][], cell: Cell) => {
-  return puzzle[cell.columnIndex][cell.columnIndex]
-}
+  return puzzle[cell.columnIndex][cell.columnIndex];
+};
 
-export { checkPuzzleLine, getAllBlocks, makeColumnArray, findCell }
+export { checkPuzzleLine, getAllBlocks, makeColumnArray, findCell, checkPuzzleLines };
