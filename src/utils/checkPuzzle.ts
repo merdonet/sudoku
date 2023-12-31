@@ -1,20 +1,22 @@
-import type { Sudoku, CheckSet, Cell } from './types';
+import type { Cell } from './types';
 
-// const sudokuData: Sudoku = [
-//   [2, 7, 1, 4, 6, 5, 9, 3, 8],
-//   [4, 3, 8, 2, 7, 9, 5, 6, 1],
-//   [5, 9, 6, 8, 1, 3, 2, 4, 7],
-//   [7, 4, 5, 6, 2, 8, 1, 5, 9],
-//   [6, 5, 2, 1, 9, 7, 3, 8, 4],
-//   [1, 8, 9, 3, 5, 4, 7, 2, 6],
-//   [8, 1, 4, 7, 3, 2, 6, 9, 5],
-//   [9, 2, 7, 5, 8, 6, 4, 1, 3],
-//   [3, 6, 5, 9, 4, 1, 8, 7, 2]
-// ]
+const makeIndexed = (puzzleData: number[][]) => {
+  return puzzleData.map((line: number[], columnIndex: number) => {
+    return line.map((item: number, index: number) => {
+      return {
+        id: `${columnIndex}-${index}`,
+        val: item,
+        lineIndex: index,
+        columnIndex,
+        lock: false,
+        userValue: 0
+      };
+    });
+  });
+};
 
 const getAllBlocks = (sudokuData: Cell[][]) => {
   const allBlocks = [];
-
   for (let i = 0; i < 9; i += 3) {
     for (let j = 0; j < 9; j += 3) {
       const blockValues = getBlockValues(sudokuData, i, j);
@@ -27,7 +29,6 @@ const getAllBlocks = (sudokuData: Cell[][]) => {
 
 const getBlockValues = (sudokuData: Cell[][], startRow: number, startCol: number) => {
   const blockValues = [];
-
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       const rowIndex = startRow + i;
@@ -38,23 +39,6 @@ const getBlockValues = (sudokuData: Cell[][], startRow: number, startCol: number
   }
 
   return blockValues;
-};
-
-const checkPuzzleLine = (arr: Cell[]): Cell[] => {
-  const result: Cell[] = [];
-  arr.forEach((item: Cell) => {
-    const found = arr.filter((it) => item.val == it.val);
-    if (found.length > 1) {
-      found.forEach((res) => {
-        if (!result.find((item) => item.id == res.id)) {
-          result.push(res);
-        }
-      });
-    }
-  });
-  console.log(result);
-
-  return result;
 };
 
 const checkPuzzleLines = (arr: Cell[][]): string[] => {
@@ -79,24 +63,6 @@ const checkPuzzleLines = (arr: Cell[][]): string[] => {
   return result;
 };
 
-const checkPuzzle = (arr: Cell[][]): Cell[] => {
-  const result: Cell[] = [];
-  arr.forEach((line: Cell[]) => {
-    line.forEach((item: Cell) => {
-      const found = line.filter((it) => item.val == it.val && item.userValue != 0);
-      if (found.length > 1) {
-        found.forEach((res) => {
-          if (!result.find((item) => item.id == res.id)) {
-            result.push(res);
-          }
-        });
-      }
-    });
-  });
-
-  return result;
-};
-
 const makeColumnArray = (puzzle: Cell[][]) => {
   const cols = [];
   for (let index = 0; index <= puzzle[0].length - 1; index++) {
@@ -110,8 +76,22 @@ const makeColumnArray = (puzzle: Cell[][]) => {
   return cols;
 };
 
-const findCell = (puzzle: Cell[][], cell: Cell) => {
-  return puzzle[cell.columnIndex][cell.columnIndex];
+const checkHighligts = (arr: Cell[][], searchValue: number): Array<any> => {
+  const idArr = arr.map((line: Cell[]) => {
+    return line.map((item: Cell) => {
+      if (item.userValue == 0) return undefined;
+      if (item.userValue == searchValue) return item.id;
+    });
+  });
+  const result: string[] = [];
+
+  idArr.forEach((line) => {
+    line.forEach((item) => {
+      if (item != undefined) result.push(item);
+    });
+  });
+
+  return result;
 };
 
-export { checkPuzzleLine, getAllBlocks, makeColumnArray, findCell, checkPuzzleLines };
+export { makeIndexed, getAllBlocks, makeColumnArray, checkPuzzleLines, checkHighligts };

@@ -36,6 +36,7 @@
             @update:selected-item="onCellSelect"
             :selected-cell="isSelected(item)"
             :error="isError(item)"
+            :high-lighted="isHighLighted(item)"
           />
         </template>
         <v-divider
@@ -51,7 +52,7 @@
   <div class="ma-10">
     <NumberBlock @update:cell-value="onUpdateCellValue" />
   </div>
-  {{ getErrorCells }}
+  {{ history }}
 </template>
 
 <script setup lang="ts">
@@ -61,7 +62,7 @@ import NumberBlock from '@/components/ui-sudoku/NumberBlock.vue';
 import { difficultyLevels } from '@/stores/sudokuData';
 import type { Cell, Difficulty } from '@/utils/types';
 import { ref } from 'vue';
-import { computed } from 'vue';
+import { isTemplateExpression } from 'typescript';
 
 const {
   indexedSudoku,
@@ -69,7 +70,9 @@ const {
   getSelectedCell,
   updateSelectedCell,
   setDifficulty,
-  getErrorCells
+  getErrorCells,
+  getHighLights,
+  history
 } = usePuzzleStore();
 
 const onCellSelect = (val: Cell) => {
@@ -95,6 +98,11 @@ const onSetDifficulty = (val: Difficulty) => {
 const isError = (val: Cell) => {
   const errorFound = getErrorCells.value.filter((item: string) => item == val.id);
   if (errorFound.length > 0) return true;
+};
+
+const isHighLighted = (val: Cell) => {
+  const found = getHighLights.value.filter((item: string) => item == val.id);
+  if (found.length > 0) return true;
 };
 </script>
 

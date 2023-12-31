@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-row" :class="cellData.lock ? 'locked-cell' : ''">
+  <div class="d-flex flex-row" :class="backColorClass">
     <v-btn
       class="cell pa-0 ma-0 rounded-0"
       flat
@@ -28,19 +28,22 @@ const props = defineProps({
   },
   error: {
     type: Boolean
+  },
+  highLighted: {
+    type: Boolean
   }
 });
 
 const emit = defineEmits(['update:selected-item']);
 
 const onClick = () => {
-  // TODO: check if locked
   emit('update:selected-item', props.cellData);
 };
 
 const cellColor = computed(() => {
   if (props.error) return 'red-lighten-1';
-  if (props.selectedCell) return 'cyan-darken-1';
+  if (props.selectedCell) return 'blue-darken-3';
+  if (props.highLighted) return 'blue-darken-3';
   return '';
 });
 
@@ -49,6 +52,16 @@ const cellValue = computed(() => {
   if (props.cellData.lock) return props.cellData.val;
 
   return '';
+});
+
+const backColorClass = computed(() => {
+  if (props.cellData.lock && props.error) return 'locked-cell';
+  if (props.selectedCell) return 'selected-cell';
+  if (props.error) return 'error-cell';
+  if (props.cellData.lock) return 'locked-cell';
+  return '';
+
+  // TODO: find better background colors.
 });
 </script>
 
@@ -63,5 +76,12 @@ const cellValue = computed(() => {
 
 .locked-cell {
   background-color: rgb(212, 209, 209);
+}
+.selected-cell {
+  background-color: rgb(159, 159, 169);
+}
+
+.error-cell {
+  background-color: rgb(250, 250, 250);
 }
 </style>
