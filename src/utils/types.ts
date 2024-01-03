@@ -11,6 +11,8 @@ type Cell = {
   val: number;
 };
 
+type History = { id: string; oldValue: number; newValue: number };
+
 type Difficulty = { label: string; value: number };
 
-export type { Sudoku, CheckSet, Cell, Difficulty };
+export type { Sudoku, CheckSet, Cell, Difficulty, History };

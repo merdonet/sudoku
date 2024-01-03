@@ -10,7 +10,6 @@
       @click="onClick"
       :color="cellColor"
     >
-      <!-- @keyup="onKeyStroke" -->
       <span class="cell-value ma-0 pa-0">{{ cellValue }}</span>
     </v-btn>
   </div>
@@ -40,10 +39,6 @@ const emit = defineEmits(['update:selected-item']);
 const onClick = () => {
   emit('update:selected-item', props.cellData);
 };
-
-// const onKeyStroke = (e: Event) => {
-//   console.log(e);
-// };
 
 const cellColor = computed(() => {
   if (props.error) return 'red-lighten-1';
