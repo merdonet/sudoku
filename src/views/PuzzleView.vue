@@ -37,6 +37,7 @@
             :selected-cell="isSelected(item)"
             :error="isError(item)"
             :high-lighted="isHighLighted(item)"
+            @keyup="onKeyStroke"
           />
         </template>
         <v-divider
@@ -50,9 +51,8 @@
     <v-divider thickness="3" class="border-opacity-100" color="black" />
   </div>
   <div class="ma-10">
-    <NumberBlock @update:cell-value="onUpdateCellValue" />
+    <NumberBlock @update:cell-value="onUpdateCellValue" @update:undo="applyUndo" />
   </div>
-  {{ history }}
 </template>
 
 <script setup lang="ts">
@@ -62,7 +62,7 @@ import NumberBlock from '@/components/ui-sudoku/NumberBlock.vue';
 import { difficultyLevels } from '@/stores/sudokuData';
 import type { Cell, Difficulty } from '@/utils/types';
 import { ref } from 'vue';
-import { isTemplateExpression } from 'typescript';
+import { onMounted } from 'vue';
 
 const {
   indexedSudoku,
@@ -72,7 +72,7 @@ const {
   setDifficulty,
   getErrorCells,
   getHighLights,
-  history
+  applyUndo
 } = usePuzzleStore();
 
 const onCellSelect = (val: Cell) => {
@@ -87,12 +87,20 @@ const isSelected = (item: Cell) => {
 };
 
 const onUpdateCellValue = async (value: number) => {
+  if (getSelectedCell.value?.lock) return;
   updateSelectedCell(value);
 };
 
 const defaultLevel = ref<Difficulty>({ label: 'Easy', value: 5 });
 const onSetDifficulty = (val: Difficulty) => {
   setDifficulty(val);
+};
+
+const onKeyStroke = (e: KeyboardEvent) => {
+  const key = Number(e.key);
+  if (isNaN(key)) return;
+
+  onUpdateCellValue(key);
 };
 
 const isError = (val: Cell) => {
@@ -104,6 +112,10 @@ const isHighLighted = (val: Cell) => {
   const found = getHighLights.value.filter((item: string) => item == val.id);
   if (found.length > 0) return true;
 };
+
+onMounted(() => {
+  setDifficulty({ label: 'Easy', value: 5 });
+});
 </script>
 
 <style scoped>

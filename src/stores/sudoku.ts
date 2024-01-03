@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import type { Cell, Difficulty } from '../utils/types';
+import type { Cell, Difficulty, History } from '../utils/types';
 import { puzzleData } from './sudokuData';
 import {
   makeIndexed,
@@ -15,7 +15,7 @@ export const usePuzzleStore = defineStore('puzzle', () => {
   indexedSudoku.value = makeIndexed(puzzleData);
 
   const selectedCell = ref<Cell>();
-  const history = ref<any>([]);
+  const history = ref<Array<History>>([]);
 
   const updateSelectedCellStatus = (val: Cell) => {
     selectedCell.value = val;
@@ -34,6 +34,7 @@ export const usePuzzleStore = defineStore('puzzle', () => {
   const updateSelectedCell = (value: number) => {
     if (!selectedCell.value) return;
     const { columnIndex, lineIndex, id, userValue } = selectedCell.value;
+
     history.value.push({
       id,
       oldValue: userValue,
@@ -53,17 +54,23 @@ export const usePuzzleStore = defineStore('puzzle', () => {
       indexedSudoku.value[columnIndex][lineIndex].val;
   };
 
-  const setDifficulty = (difficulty: Difficulty) => {
+  const setDifficulty = async (difficulty: Difficulty) => {
     resetPuzzle();
-    indexedSudoku.value.forEach((puzzleLine: Array<Cell>) => {
-      for (let index = 0; index < difficulty.value; index++) {
-        const ran = Math.floor(Math.random() * puzzleLine.length);
-        prepareDifficulty(puzzleLine[ran]);
+    const diffList = [];
+    for (let i = 0; i < 9; i++) {
+      for (let k = 0; k < difficulty.value; k++) {
+        const ran = Math.floor(Math.random() * 8);
+        diffList.push(`${i}-${ran}`);
       }
+    }
+
+    diffList.forEach((item) => {
+      const [columnIndex, lineIndex] = item.split('-');
+      indexedSudoku.value[columnIndex][lineIndex].lock = true;
+      indexedSudoku.value[columnIndex][lineIndex].userValue =
+        indexedSudoku.value[columnIndex][lineIndex].val;
     });
   };
-
-  setDifficulty({ label: 'Easy', value: 5 });
 
   const getSelectedCell = computed(() => selectedCell);
   const puzzle = computed(() => puzzleData);
@@ -86,6 +93,16 @@ export const usePuzzleStore = defineStore('puzzle', () => {
 
   const getHighLights = computed(() => highLights);
 
+  const applyUndo = () => {
+    const lastMove = history.value.pop();
+    if (!lastMove) return;
+    const [columnIndex, lineIndex] = lastMove.id.split('-');
+
+    indexedSudoku.value[columnIndex][lineIndex].userValue = lastMove.oldValue;
+    updateSelectedCellStatus(indexedSudoku.value[columnIndex][lineIndex].userValue);
+    checkErrors();
+  };
+
   return {
     puzzle,
     indexedSudoku,
@@ -97,6 +114,6 @@ export const usePuzzleStore = defineStore('puzzle', () => {
     setDifficulty,
     getErrorCells,
     getHighLights,
-    history
+    applyUndo
   };
 });

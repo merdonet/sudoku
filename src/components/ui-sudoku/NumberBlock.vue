@@ -13,7 +13,7 @@
     </v-btn>
   </template>
   <v-btn
-    class="cell"
+    class="cell mx-1"
     flat
     variant="outlined"
     rounded="false"
@@ -23,14 +23,27 @@
   >
     <span class="cell-value ma-0 pa-0">X</span>
   </v-btn>
+  <v-btn
+    class="cell"
+    flat
+    variant="outlined"
+    rounded="false"
+    :ripple="false"
+    size="small"
+    @click="onUndoClick"
+  >
+    <v-icon icon="mdi-undo"></v-icon>
+  </v-btn>
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits(['update:cell-value']);
+const emit = defineEmits(['update:cell-value', 'update:undo']);
 
 const onClick = (val: number) => {
   emit('update:cell-value', val);
 };
+
+const onUndoClick = () => emit('update:undo');
 </script>
 
 <style scoped>
